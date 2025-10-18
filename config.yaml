@@ -1,0 +1,12 @@
+firms:
+  enabled: true
+  map_key: "53b0fcf7bea04cca38d1e3b5f03359d8"   # 🔑 Replace with your NASA FIRMS key
+  dataset: "VIIRS_NOAA20_NRT"     # Options: VIIRS_NOAA20_NRT, MODIS_NRT
+  bbox: [68.0, 6.0, 98.0, 37.0]   # Bounding box for India
+  days: 1                         # How many past days of fire data to fetch
+  min_confidence: 30              # Filter out low-confidence detections
+  output_map: "wildfires_map.html"
+ 
+eonet:
+  enabled: true
+
