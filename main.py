@@ -1,7 +1,9 @@
 import yaml
 from api.wildfire_api import fetch_wildfires
+import webbrowser
 from mapping.map_generator import generate_map
 from utils.filters import filter_by_confidence
+output_map = "wildfires_map.html"
 
 def main():
     # Load configuration
@@ -13,7 +15,7 @@ def main():
     bbox = cfg.get("bbox")
     days = cfg.get("days", 1)
     min_conf = cfg.get("min_confidence", 30)
-    output_file = cfg.get("output_map", "wildfires_map.html")
+    output_map = cfg.get("output_map", "wildfires_map.html")
 
     # Fetch data
     df = fetch_wildfires(map_key, dataset, bbox, days)
@@ -26,11 +28,13 @@ def main():
     if df_filtered.empty:
         print("No high-confidence wildfires found.")
         return
-
-    generate_map(df_filtered, output_file)
+    df_filtered = df
+    generate_map(df_filtered, output_map)
 
     print(f"🔥 {len(df_filtered)} wildfires plotted successfully.")
-    print(f"🌍 Open '{output_file}' to view the map in your browser.")
+    print(f"🌍 Opening '{output_map}' to view the map in your browser.")
+
+    webbrowser.open(output_map)
 
 if __name__ == "__main__":
     main()

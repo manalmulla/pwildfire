@@ -1,10 +1,9 @@
 import pandas as pd
 
-def filter_by_confidence(df, min_confidence=30):
+def filter_by_confidence(df, min_confidence=10):
     """
     Filters wildfire DataFrame to include only entries
-    with confidence >= min_confidence.
-    Handles both numeric and text-based confidence values.
+    with confidence >= min_confidence or labeled 'nominal'/'high'.
     """
     if df.empty:
         return df
@@ -12,7 +11,9 @@ def filter_by_confidence(df, min_confidence=30):
     if "confidence" in df.columns:
         try:
             df["conf_num"] = pd.to_numeric(df["confidence"], errors="coerce")
-            df = df[df["conf_num"].fillna(0) >= min_confidence]
+            df_num = df[df["conf_num"].fillna(0) >= min_confidence]
+            df_txt = df[df["confidence"].isin(["nominal", "high", "h"])]
+            df = pd.concat([df_num, df_txt]).drop_duplicates()
         except Exception:
             df = df[df["confidence"].isin(["nominal", "high", "h"])]
     return df
