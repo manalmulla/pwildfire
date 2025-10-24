@@ -24,13 +24,3 @@ def fetch_firms(map_key, dataset="viirs_nrt", bbox=None, days=1):
 
     df = pd.read_csv(StringIO(resp.text))
     return df
-
-def filter_by_confidence(df, min_confidence=30):
-    """Filter out low-confidence detections."""
-    if 'confidence' in df.columns:
-        try:
-            df['conf_num'] = pd.to_numeric(df['confidence'], errors='coerce')
-            df = df[df['conf_num'].fillna(0) >= min_confidence]
-        except Exception:
-            df = df[df['confidence'].isin(['nominal', 'high'])]
-    return df

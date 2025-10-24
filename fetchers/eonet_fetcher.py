@@ -1,5 +1,5 @@
 # fetchers/eonet_fetcher.py
-import requests, datetime, pandas as pd
+import requests, pandas as pd
 
 EONET_BASE = "https://eonet.gsfc.nasa.gov/api/v3/events"
 
