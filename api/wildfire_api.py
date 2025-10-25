@@ -4,7 +4,7 @@ from io import StringIO
 
 def fetch_wildfires(map_key, dataset, bbox=None, days=1):
     """
-    Fetch wildfire data from NASA FIRMS (as CSV) and return it as a DataFrame.
+    Fetches wildfire data from NASA FIRMS (as CSV) and return it as a DataFrame.
     """
     print("[INFO] Fetching live wildfire data from NASA FIRMS...")
 

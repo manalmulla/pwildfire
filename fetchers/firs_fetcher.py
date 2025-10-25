@@ -5,7 +5,7 @@ from io import StringIO
 FIRMS_BASE = "https://firms.modaps.eosdis.nasa.gov/api/"
 
 def fetch_firms(map_key, dataset="viirs_nrt", bbox=None, days=1):
-    """Fetch wildfire hotspots from NASA FIRMS API (CSV format)."""
+    """Fetches wildfire hotspots from NASA FIRMS API (CSV format)."""
     end = datetime.datetime.utcnow()
     start = end - datetime.timedelta(days=days)
 

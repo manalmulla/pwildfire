@@ -2,8 +2,7 @@ import pandas as pd
 
 def filter_by_confidence(df, min_confidence=10):
     """
-    Filters wildfire DataFrame to include only entries
-    with confidence >= min_confidence or labeled 'nominal'/'high'.
+    confidence >= min_confidence or labeled 'nominal'/'high'.
     """
     if df.empty:
         return df

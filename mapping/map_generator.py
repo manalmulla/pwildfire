@@ -2,9 +2,6 @@ import folium
 import pandas as pd
 
 def generate_map(df, output_file="wildfires_map.html"):
-    """
-    Generate an interactive global wildfire map (no infinite world wrap).
-    """
     if df.empty:
         print("[WARN] No wildfire data available to map.")
         return

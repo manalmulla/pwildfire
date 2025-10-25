@@ -4,7 +4,7 @@ import requests, pandas as pd
 EONET_BASE = "https://eonet.gsfc.nasa.gov/api/v3/events"
 
 def fetch_eonet_wildfires(days=1):
-    """Fetch recent wildfire events from NASA EONET API."""
+    """Fetches recent wildfire events from NASA EONET API."""
     params = {"status": "open", "category": "wildfires", "limit": 1000}
     resp = requests.get(EONET_BASE, params=params, timeout=20)
     resp.raise_for_status()
