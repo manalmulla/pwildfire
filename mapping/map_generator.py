@@ -17,7 +17,7 @@ def generate_map(df, output_file="wildfires_map.html"):
         if pd.isna(lat) or pd.isna(lon):
             continue
         popup_text = (
-            f"<div style='font-size: 2rem;'>"
+            f"<div style='font-size: 1rem;'>"
             f"<b>Date:</b> {row.get('acq_date', '?')}<br>"
             f"<b>Time:</b> {row.get('acq_time', '?')}<br>"
             f"<b>Confidence:</b> {row.get('confidence', '?')}"
@@ -27,7 +27,7 @@ def generate_map(df, output_file="wildfires_map.html"):
         )
         folium.CircleMarker(
             location=[lat, lon],
-            radius=5,
+            radius=3,
             color="red",
             fill=True,
             fill_color="orange",

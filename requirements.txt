@@ -1,6 +1,6 @@
-requests
-pandas
-pyyaml
-folium
-geopy
-python-dateutil
+Flask==2.3.3
+folium==0.15.0
+pandas==2.1.3
+requests==2.31.0
+PyYAML==6.0.1
+firebase-admin==6.2.0

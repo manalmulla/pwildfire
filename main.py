@@ -1,8 +1,8 @@
 import yaml
 from api.wildfire_api import fetch_wildfires
-import webbrowser
 from mapping.map_generator import generate_map
 from utils.filters import filter_by_confidence
+from alert_manager import check_new_alerts
 output_map = "wildfires_map.html"
 
 def main():
@@ -28,13 +28,10 @@ def main():
     if df_filtered.empty:
         print("No high-confidence wildfires found.")
         return
-    df_filtered = df
+    check_new_alerts(df_filtered)
     generate_map(df_filtered, output_map)
 
     print(f"🔥 {len(df_filtered)} wildfires plotted successfully.")
-    print(f"🌍 Opening '{output_map}' to view the map in your browser.")
-
-    webbrowser.open(output_map)
 
 if __name__ == "__main__":
     main()

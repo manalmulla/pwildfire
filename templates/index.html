@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🔥 Wildfire Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase scripts -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging-compat.js"></script>
+
+ <style>
+    /* Example CSS to reduce popup text size and marker size */
+    .leaflet-popup-content {
+        font-size: 12px; /* Smaller font size for popup text */
+    }
+    .leaflet-popup-content-wrapper {
+        padding: 5px; /* Smaller padding inside popup */
+    }
+    /* If you were using custom DivIcons instead of CircleMarkers, you'd target their classes here */
+  </style>
+</head>
+<body>
+  <h1>🔥 Wildfire Dashboard</h1>
+
+  <!-- Alert button -->
+  <button id="notifyBtn">Enable Push Alerts</button>
+
+  <!-- Embed your Folium map -->
+  <iframe id="wildfireMap" src="/map" width="100%" height="600px" style="border:none;"></iframe>
+
+  <script>
+    // Firebase configuration (replace with your values)
+     const firebaseConfig = {
+  apiKey: "AIzaSyD8ZxEXAMPLE",
+  authDomain: "wildfire-alerts.firebaseapp.com",
+  projectId: "wildfire-alerts",
+  storageBucket: "wildfire-alerts.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abc123xyz456"
+};
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    // Enable push notifications
+    document.getElementById("notifyBtn").addEventListener("click", async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          const token = await messaging.getToken({
+            vapidKey: "BK11-muydgKpG5xyyGOxnUPCnObnxdnmBL2D32IhkjEY4uotqBaCK72yYVUwhuXMFBt7Pu7Qk3DzijygiPZAHyQ",
+          });
+          console.log("Token:", token);
+
+          // Send token to Flask backend
+          await fetch("/register_token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+          alert("✅ Alerts enabled! You’ll get wildfire updates.");
+        } else {
+          alert("❌ Permission denied. Cannot send alerts.");
+        }
+      } catch (err) {
+        console.error("Error getting permission or token:", err);
+      }
+    });
+
+    // Register service worker
+    if ("serviceWorker" in navigator) {
+navigator.serviceWorker.register("/static/firebase-messaging-sw.js")        
+.then(() => console.log("[SW] Service worker registered"))
+        .catch(err => console.error("[SW ERROR]", err));
+    }
+  </script>
+</body>
+</html>
