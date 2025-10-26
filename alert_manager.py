@@ -67,3 +67,19 @@ def check_new_alerts(df):
         print(f"[INFO] {len(new_alerts)} new alerts sent.")
     else:
         print("[INFO] No new alerts to send.")
+
+ALERTS_LOG = "latest_alerts.json"
+
+def load_latest_alerts():
+    if os.path.exists(ALERTS_LOG):
+        with open(ALERTS_LOG, "r") as f:
+            return json.load(f)
+    return []
+
+def save_latest_alert(alert_message):
+    alerts = load_latest_alerts()
+    alerts.insert(0, alert_message)  # newest first
+    alerts = alerts[:5]  # keep last 5 alerts
+    with open(ALERTS_LOG, "w") as f:
+        json.dump(alerts, f, indent=2)
+

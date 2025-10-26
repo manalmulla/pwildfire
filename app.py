@@ -20,6 +20,16 @@ def serve_map():
 def service_worker():
     return send_from_directory("static", "firebase-messaging-sw.js")
 
+@app.route("/latest_alerts")
+def latest_alerts():
+    if os.path.exists("latest_alerts.json"):
+        with open("latest_alerts.json", "r") as f:
+            alerts = json.load(f)
+    else:
+        alerts = []
+    return {"alerts": alerts}
+
+
 @app.route("/register_token", methods=["POST"])
 def register_token():
     data = request.get_json()

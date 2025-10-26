@@ -38,3 +38,28 @@ document.getElementById("alertBtn").addEventListener("click", async () => {
     console.error("Error enabling alerts:", err);
   }
 });
+
+async function updateAlerts() {
+  try {
+    const res = await fetch("/latest_alerts");
+    const data = await res.json();
+    const list = document.getElementById("alertsList");
+    list.innerHTML = "";
+    if (data.alerts.length === 0) {
+      list.innerHTML = "<li>No alerts yet.</li>";
+      return;
+    }
+    data.alerts.forEach(alert => {
+      const li = document.createElement("li");
+      li.textContent = alert;
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error("Failed to load alerts:", err);
+  }
+}
+
+// Update alerts every 30 seconds
+setInterval(updateAlerts, 30000);
+updateAlerts(); // initial load
+
