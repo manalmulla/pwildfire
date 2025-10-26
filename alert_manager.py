@@ -1,40 +1,35 @@
-import os
 import json
-import pandas as pd
 import firebase_admin
 from firebase_admin import credentials, messaging
+import os
 
-# -----------------------------
-# 🔥 Firebase Initialization
-# -----------------------------
-FIREBASE_KEY_PATH = os.path.join(
-    os.path.dirname(__file__),
-    "wildfire-alert-d7468-firebase-adminsdk-fbsvc-1ee196f02c.json"
-)
-
+# Initialize Firebase
 if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_KEY_PATH)
+    cred = credentials.Certificate("wildfire-alert-d7468-firebase-adminsdk-fbsvc-1ee196f02c.json")
     firebase_admin.initialize_app(cred)
     print("[INFO] Firebase initialized for web push notifications.")
 
+TOKENS_FILE = "tokens.json"
+SENT_ALERTS_FILE = "sent_alerts.json"
 
-# -----------------------------
-# 🔔 Send Push Notification
-# -----------------------------
+def load_tokens():
+    if os.path.exists(TOKENS_FILE):
+        with open(TOKENS_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+def load_sent_alerts():
+    if os.path.exists(SENT_ALERTS_FILE):
+        with open(SENT_ALERTS_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+def save_sent_alerts(alert_ids):
+    with open(SENT_ALERTS_FILE, "w") as f:
+        json.dump(alert_ids, f, indent=2)
+
 def send_push_notification(message):
-    """
-    Sends a web push notification to all subscribed users (from tokens.json)
-    """
-    try:
-        with open("tokens.json", "r") as f:
-            tokens = json.load(f)
-    except FileNotFoundError:
-        print("[WARN] tokens.json not found — no subscribers yet.")
-        return
-    except json.JSONDecodeError:
-        print("[ERROR] tokens.json is invalid — please check formatting.")
-        return
-
+    tokens = load_tokens()
     if not tokens:
         print("[INFO] No subscribed users to alert yet.")
         return
@@ -46,43 +41,29 @@ def send_push_notification(message):
         ),
         tokens=tokens
     )
-
     response = messaging.send_multicast(notification)
     print(f"[PUSH SENT] {response.success_count} users notified, {response.failure_count} failed.")
 
-
-# -----------------------------
-# 🚨 Detect New Wildfires
-# -----------------------------
-_last_alerts = set()
-
 def check_new_alerts(df):
-    """
-    Detects new wildfire events (based on lat/lon/date) and sends alerts.
-    """
-    global _last_alerts
-
     if df.empty:
-        print("[INFO] No wildfire data to check for alerts.")
+        print("[INFO] No wildfire data to check.")
         return
 
-    # Create a set of unique identifiers for new data
-    current_alerts = {
-        f"{row['latitude']}-{row['longitude']}-{row['acq_date']}"
-        for _, row in df.iterrows()
-        if not pd.isna(row.get("latitude")) and not pd.isna(row.get("longitude"))
-    }
+    sent_alerts = load_sent_alerts()
+    new_alerts = []
 
-    # Find new wildfire hotspots
-    new_alerts = current_alerts - _last_alerts
+    for _, row in df.iterrows():
+        alert_id = f"{row.get('latitude')}_{row.get('longitude')}_{row.get('acq_date')}_{row.get('acq_time')}"
+        if alert_id not in sent_alerts:
+            confidence = row.get('confidence')
+            if isinstance(confidence, (int, float)) and confidence >= 30:
+                msg = f"🔥 Wildfire detected!\nDate: {row.get('acq_date')} Time: {row.get('acq_time')}\nLat: {row.get('latitude')}, Lon: {row.get('longitude')}\nConfidence: {confidence}"
+                send_push_notification(msg)
+                new_alerts.append(alert_id)
 
-    if not new_alerts:
-        print("[INFO] No new wildfire alerts detected.")
-        return
-
-    _last_alerts = current_alerts  # Update record
-    print(f"[ALERT] {len(new_alerts)} new wildfire hotspots detected!")
-
-    # Send a push notification to subscribers
-    alert_message = f"{len(new_alerts)} new wildfire hotspots detected. Check dashboard for details."
-    send_push_notification(alert_message)
+    if new_alerts:
+        sent_alerts.extend(new_alerts)
+        save_sent_alerts(sent_alerts)
+        print(f"[INFO] {len(new_alerts)} new alerts sent.")
+    else:
+        print("[INFO] No new alerts to send.")
